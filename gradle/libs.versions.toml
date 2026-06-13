@@ -2,9 +2,11 @@
 
 [versions]
 spring-boot = "4.0.6"
+spotless = "8.6.0"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 
 [libraries]
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
