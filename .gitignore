@@ -1,0 +1,22 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin
+.kotlin/
+
+# Java build artifacts
+*.class
+bin/
+out/
+
+# Environment files
+*.env
+
+# IDE
+.idea/
+*.iml
+
+# macOS
+.DS_Store
