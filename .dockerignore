@@ -1,0 +1,34 @@
+# Build output (re-generated inside the build stage)
+build/
+.gradle/
+.kotlin/
+bin/
+out/
+*.class
+
+# Local-only planning docs (gitignored, not part of the build)
+.plans/
+
+# VCS
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.idea/
+*.iml
+
+# Compose / Docker descriptors (not needed inside the image build)
+docker-compose.yml
+compose.yaml
+Dockerfile
+.dockerignore
+
+# Env / secrets
+*.env
+
+# macOS
+.DS_Store
+
+# Docs
+README.md

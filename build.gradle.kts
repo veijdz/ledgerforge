@@ -23,6 +23,15 @@ dependencies {
     implementation(libs.spring.boot.starter)
     implementation(libs.jspecify)
 
+    // Spring MVC + embedded Tomcat (Boot 4 webmvc starter). Serves the actuator HTTP
+    // endpoints; without a servlet container the app would boot and exit with no port.
+    // REST controllers (com.ledgerforge.web) land in Fase 1; the web layer itself starts here.
+    implementation(libs.spring.boot.starter.webmvc)
+
+    // Actuator: /actuator/health (+ liveness/readiness probe groups) for container health.
+    // BOM-managed; metrics/Prometheus/OTel wiring is deferred to Fase 6.5.
+    implementation(libs.spring.boot.starter.actuator)
+
     // Plain JDBC DataSource autoconfig so Flyway has a target to migrate against.
     // Spring Data JDBC / jOOQ proper arrive in Fase 1; the baseline needs only a DataSource.
     implementation(libs.spring.boot.starter.jdbc)

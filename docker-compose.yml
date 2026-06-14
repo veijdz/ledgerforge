@@ -1,0 +1,72 @@
+# Local infra for LedgerForge. Dev-only credentials below (ledgerforge/ledgerforge) are
+# intentional for a throwaway local stack: NOT secrets, never used in any deployed env.
+#
+# `docker compose up -d` brings up postgres, valkey, keycloak, otel-lgtm and the app.
+# Only the app's hard dependency (postgres) gates startup; valkey/keycloak/otel are
+# infra the app will consume in later phases, not yet wired into the app's boot.
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ledgerforge
+      POSTGRES_USER: ledgerforge
+      POSTGRES_PASSWORD: ledgerforge
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledgerforge -d ledgerforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  valkey:
+    image: valkey/valkey:8
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1
+    command: start-dev
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+
+  otel-lgtm:
+    image: grafana/otel-lgtm
+    ports:
+      - "3000:3000"
+      - "4317:4317"
+      - "4318:4318"
+
+  app:
+    build: .
+    image: ledgerforge:local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ledgerforge
+      SPRING_DATASOURCE_USERNAME: ledgerforge
+      SPRING_DATASOURCE_PASSWORD: ledgerforge
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "java", "HealthCheck", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+
+volumes:
+  postgres-data:

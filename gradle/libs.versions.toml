@@ -21,6 +21,13 @@ spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs" }
 
 [libraries]
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+# Boot 4 split the web starter: spring-boot-starter-webmvc is Spring MVC + embedded Tomcat.
+# Required so the actuator HTTP endpoints (/actuator/health) are actually served; without a
+# servlet container the app boots and exits with no port to probe. BOM-managed (no version).
+spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
+# Boot 4 split autoconfig per technology: the actuator starter brings the health
+# endpoint and probe groups. No explicit version: BOM-managed via SpringBootPlugin.BOM.
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
 spring-boot-starter-jdbc = { module = "org.springframework.boot:spring-boot-starter-jdbc" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
