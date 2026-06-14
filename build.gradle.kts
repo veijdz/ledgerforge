@@ -1,3 +1,6 @@
+import com.github.spotbugs.snom.Confidence
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsTask
 import net.ltgt.gradle.errorprone.errorprone
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
@@ -6,6 +9,7 @@ plugins {
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spotless)
     alias(libs.plugins.errorprone)
+    alias(libs.plugins.spotbugs)
 }
 
 repositories {
@@ -20,6 +24,9 @@ dependencies {
 
     errorprone(libs.errorprone.core)
     errorprone(libs.nullaway)
+
+    // FindSecBugs security detectors plug into SpotBugs analysis only (not compile/runtime).
+    spotbugsPlugins(libs.findsecbugs)
 
     testImplementation(libs.spring.boot.starter.test)
 }
@@ -64,6 +71,33 @@ spotless {
         trimTrailingWhitespace()
         endWithNewline()
     }
+}
+
+spotbugs {
+    // Plan target 4.10.x: SpotBugs tool that can analyze Java 25 bytecode (class major 69).
+    toolVersion = "4.10.2"
+    effort = Effort.MAX
+    reportLevel = Confidence.DEFAULT
+}
+
+// SpotBugs is a CI gate, not part of the fast local `build`/`check` (see 04-testing-quality.md).
+// Run it explicitly via `./gradlew spotbugsMain`.
+tasks.withType<SpotBugsTask>().configureEach {
+    reports.create("html") {
+        required = true
+    }
+}
+
+// The plugin auto-wires its spotbugs tasks into `check` (as a TaskCollection dependency).
+// Detach that collection so `./gradlew build`/`check` stays the fast gate; SpotBugs runs
+// only when invoked explicitly via `./gradlew spotbugsMain`.
+tasks.named("check") {
+    setDependsOn(
+        dependsOn.filterNot { dep ->
+            dep is TaskCollection<*> &&
+                dep.map { it.name }.all { it.startsWith("spotbugs") }
+        },
+    )
 }
 
 tasks.named<Test>("test") {
