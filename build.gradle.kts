@@ -6,6 +6,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     java
+    jacoco
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spotless)
     alias(libs.plugins.errorprone)
@@ -102,4 +103,77 @@ tasks.named("check") {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+}
+
+// Coverage tooling version is pinned: a floating JaCoCo can break a JDK upgrade
+// (instrumentation lags new class-file major versions). See 04-testing-quality.md.
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
+}
+
+// Classes excluded from BOTH the report and the verification: the Spring Boot
+// entrypoint, configuration, DTOs, and generated jOOQ code (the generated dirs
+// do not exist yet; excluding them now is forward-looking and matches the plan).
+// Domain packages are intentionally NOT excluded.
+val coverageExclusions =
+    listOf(
+        "**/*Application.*",
+        "**/LedgerForgeApplication.*",
+        "**/config/**",
+        "**/dto/**",
+        "**/generated/**",
+        "**/jooq/**",
+    )
+
+fun JacocoReportBase.applyCoverageExclusions() {
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map { dir ->
+                fileTree(dir) { exclude(coverageExclusions) }
+            },
+        ),
+    )
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    applyCoverageExclusions()
+}
+
+// Coverage floor (a minimum, NOT a target): ~80% line / ~70% branch at the
+// bundle level. With *Application excluded and no domain code yet, the measured
+// set is effectively empty, so the rule passes trivially; the gate bites once
+// Fase 1 adds domain code. NUNCA perseguir 100% nem padding sem assercao.
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.80".toBigDecimal()
+            }
+            limit {
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
+                minimum = "0.70".toBigDecimal()
+            }
+        }
+    }
+    applyCoverageExclusions()
+}
+
+// Wire the coverage gate into the local build (Definicao de pronto lists the
+// JaCoCo gate as part of `./gradlew build`). SpotBugs stays decoupled from check
+// (handled above); only the coverage verification is added here.
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }

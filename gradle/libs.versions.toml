@@ -9,6 +9,7 @@ nullaway = "0.13.6"
 jspecify = "1.0.0"
 spotbugs = "6.5.6"
 findsecbugs = "1.14.0"
+jacoco = "0.8.15"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
