@@ -21,7 +21,20 @@ spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs" }
 
 [libraries]
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+spring-boot-starter-jdbc = { module = "org.springframework.boot:spring-boot-starter-jdbc" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
+# Spring Boot 4 split autoconfig into per-technology modules: flyway-core alone no longer
+# triggers Flyway autoconfiguration. spring-boot-starter-flyway brings flyway-core plus the
+# spring-boot-flyway autoconfigure module that runs migrations on startup.
+spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
+postgresql = { module = "org.postgresql:postgresql" }
+# Testcontainers 2.0 renamed every module artifact with a `testcontainers-` prefix
+# (the 1.x `org.testcontainers:junit-jupiter` / `:postgresql` coordinates no longer exist).
+# Versions stay BOM-managed (2.0.5 via the Boot 4 BOM's imported testcontainers-bom).
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
 errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone-core" }
 nullaway = { module = "com.uber.nullaway:nullaway", version.ref = "nullaway" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }

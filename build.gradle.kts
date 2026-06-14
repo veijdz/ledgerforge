@@ -23,6 +23,19 @@ dependencies {
     implementation(libs.spring.boot.starter)
     implementation(libs.jspecify)
 
+    // Plain JDBC DataSource autoconfig so Flyway has a target to migrate against.
+    // Spring Data JDBC / jOOQ proper arrive in Fase 1; the baseline needs only a DataSource.
+    implementation(libs.spring.boot.starter.jdbc)
+
+    // Flyway 11.x (BOM-managed). Boot 4 moved Flyway autoconfig into its own module, so the
+    // starter (not bare flyway-core) is required to run migrations on startup. The postgresql
+    // module is mandatory since Flyway 10 split out database-specific support.
+    implementation(libs.spring.boot.starter.flyway)
+    implementation(libs.flyway.database.postgresql)
+
+    // PostgreSQL JDBC driver (BOM-managed), needed only at runtime.
+    runtimeOnly(libs.postgresql)
+
     errorprone(libs.errorprone.core)
     errorprone(libs.nullaway)
 
@@ -39,6 +52,13 @@ dependencies {
 
     // ArchUnit (JUnit 5 engine) drives the architecture fitness rules.
     testImplementation(libs.archunit.junit5)
+
+    // Testcontainers + @ServiceConnection: a real Postgres 17 for integration tests (NUNCA H2).
+    // Versions are BOM-managed (Testcontainers 2.0.5 via the Boot 4 BOM) so the
+    // spring-boot-testcontainers <-> testcontainers pairing stays compatible.
+    testImplementation(libs.spring.boot.testcontainers)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.postgresql)
 }
 
 java {
