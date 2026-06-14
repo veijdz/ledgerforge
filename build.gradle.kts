@@ -30,6 +30,15 @@ dependencies {
     spotbugsPlugins(libs.findsecbugs)
 
     testImplementation(libs.spring.boot.starter.test)
+
+    // Spring Modulith BOM aligns the release train to Spring Boot 4.0 (2.0.x line).
+    // Only the test source set consumes Modulith for now: boundary verification via
+    // ApplicationModules. The runtime starter-core lands later with the event registry.
+    testImplementation(platform(libs.spring.modulith.bom))
+    testImplementation(libs.spring.modulith.starter.test)
+
+    // ArchUnit (JUnit 5 engine) drives the architecture fitness rules.
+    testImplementation(libs.archunit.junit5)
 }
 
 java {

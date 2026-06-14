@@ -10,6 +10,8 @@ jspecify = "1.0.0"
 spotbugs = "6.5.6"
 findsecbugs = "1.14.0"
 jacoco = "0.8.15"
+archunit = "1.4.1"
+spring-modulith = "2.0.7"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
@@ -24,3 +26,6 @@ errorprone-core = { module = "com.google.errorprone:error_prone_core", version.r
 nullaway = { module = "com.uber.nullaway:nullaway", version.ref = "nullaway" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 findsecbugs = { module = "com.h3xstream.findsecbugs:findsecbugs-plugin", version.ref = "findsecbugs" }
+archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+spring-modulith-bom = { module = "org.springframework.modulith:spring-modulith-bom", version.ref = "spring-modulith" }
+spring-modulith-starter-test = { module = "org.springframework.modulith:spring-modulith-starter-test" }
